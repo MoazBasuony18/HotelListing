@@ -1,4 +1,8 @@
+using Microsoft.EntityFrameworkCore;
 using Serilog;
+using WebApplication1.Configurations;
+using WebApplication1.Data;
+
 Log.Logger = new LoggerConfiguration()
     .WriteTo.File(path: "G:\\Web Elgendy\\Api\\WebApplication1\\logs\\log-.txt",
     outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
@@ -8,6 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddAutoMapper(typeof(MapperInitilizer));
 builder.Services.AddCors(a =>
 {
     a.AddPolicy("allowAll", newBuilder =>
@@ -18,6 +23,10 @@ builder.Services.AddCors(a =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddDbContext<HotelDbContext>(option =>
+{
+    option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
 builder.Host.UseSerilog();
 try
 {
