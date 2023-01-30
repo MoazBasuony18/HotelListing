@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using WebApplication1.BL.IRepository;
+using WebApplication1.BL.Repository;
 using WebApplication1.Configurations;
 using WebApplication1.Data;
 
@@ -11,8 +13,11 @@ Log.Logger = new LoggerConfiguration()
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson(option =>
+option.SerializerSettings.ReferenceLoopHandling =
+Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 builder.Services.AddAutoMapper(typeof(MapperInitilizer));
+builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 builder.Services.AddCors(a =>
 {
     a.AddPolicy("allowAll", newBuilder =>

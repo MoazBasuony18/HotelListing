@@ -40,6 +40,14 @@ namespace WebApplication1.Data
                     Rating = 4.6,
                     CountryId = 1,
                 },
+                 new Hotel
+                 {
+                     Id = 4,
+                     Name = "Egypt Star Hotel 2",
+                     Address = "Zamalek",
+                     Rating = 4.5,
+                     CountryId = 1,
+                 },
                 new Hotel
                 {
                     Id = 2,

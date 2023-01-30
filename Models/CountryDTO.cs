@@ -12,6 +12,6 @@ namespace WebApplication1.Models
     public class CountryDTO : CreateCountryDTO
     {
         public int Id { get; set; }
-        public virtual IList<HotelDTO> HotelDTOs { get; set; }
+        public virtual IList<HotelDTO> Hotels { get; set; }
     }
 }
