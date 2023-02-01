@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using WebApplication1;
 using WebApplication1.BL.IRepository;
 using WebApplication1.BL.Repository;
 using WebApplication1.Configurations;
@@ -28,6 +29,8 @@ builder.Services.AddCors(a =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAuthentication();
+builder.Services.ConfigureIdentity();
 builder.Services.AddDbContext<HotelDbContext>(option =>
 {
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));

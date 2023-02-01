@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace WebApplication1.Data
 {
-    public class HotelDbContext:DbContext
+    public class HotelDbContext:IdentityDbContext<ApiUser>
     {
         public HotelDbContext(DbContextOptions options):base(options)
         {
@@ -12,6 +13,7 @@ namespace WebApplication1.Data
         public DbSet<Hotel> Hotels { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Country>().HasData(
                 new Country
                 {
