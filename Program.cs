@@ -5,6 +5,7 @@ using WebApplication1.BL.IRepository;
 using WebApplication1.BL.Repository;
 using WebApplication1.Configurations;
 using WebApplication1.Data;
+using WebApplication1.Services;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.File(path: "G:\\Web Elgendy\\Api\\WebApplication1\\logs\\log-.txt",
@@ -19,6 +20,7 @@ option.SerializerSettings.ReferenceLoopHandling =
 Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 builder.Services.AddAutoMapper(typeof(MapperInitilizer));
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IAuthManager, AuthManager>();
 builder.Services.AddCors(a =>
 {
     a.AddPolicy("allowAll", newBuilder =>
@@ -50,7 +52,7 @@ try
     }
     app.UseCors("allowAll");
     app.UseHttpsRedirection();
-
+    app.UseAuthentication();
     app.UseAuthorization();
 
     app.MapControllers();

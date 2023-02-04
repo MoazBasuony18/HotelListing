@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Data;
 using WebApplication1.Models;
+using WebApplication1.Services;
 
 namespace WebApplication1.Controllers
 {
@@ -14,13 +15,15 @@ namespace WebApplication1.Controllers
         private readonly ILogger<AccountController> logger;
         private readonly IMapper mapper;
         private readonly UserManager<ApiUser> userManager;
+        private readonly IAuthManager authManager;
 
         public AccountController(ILogger<AccountController> logger,IMapper mapper,
-            UserManager<ApiUser> userManager)
+            UserManager<ApiUser> userManager,IAuthManager authManager)
         {
             this.logger = logger;
             this.mapper = mapper;
             this.userManager = userManager;
+            this.authManager = authManager;
         }
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
@@ -56,29 +59,30 @@ namespace WebApplication1.Controllers
             }
         }
 
-        //[HttpPost]
-        //[Route("login")]
-        //public async Task<IActionResult> Login([FromBody] LoginUserDTO userDTO)
-        //{
-        //    logger.LogInformation($"Login attempt for {userDTO.Email} ");
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
-        //    try
-        //    {
-        //        var result = await signInManager.PasswordSignInAsync(userDTO.Email, userDTO.Password, false, false);
-        //        if (!result.Succeeded)
-        //        {
-        //            return Unauthorized(userDTO);
-        //        }
-        //        return Accepted();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        logger.LogError(ex, $"Something went wrong in the {nameof(Login)} ");
-        //        return Problem($"Something went wrong in the {nameof(Login)} ", statusCode: 500);
-        //    }
-        //}
+        [HttpPost]
+        [Route("login")]
+        public async Task<IActionResult> Login([FromBody] LoginUserDTO userDTO)
+        {
+            logger.LogInformation($"Login Attempt for {userDTO.Email} ");
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                if (!await authManager.ValidateUser(userDTO))
+                {
+                    return Unauthorized();
+                }
+
+                return Accepted(new { Token = await authManager.CreateToken() });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Something Went Wrong in the {nameof(Login)}");
+                return Problem($"Something Went Wrong in the {nameof(Login)}", statusCode: 500);
+            }
+        }
     }
 }
