@@ -50,6 +50,7 @@ try
         app.UseSwagger();
         app.UseSwaggerUI();
     }
+    app.ConfigureExceptionHandler();
     app.UseCors("allowAll");
     app.UseHttpsRedirection();
     app.UseAuthentication();

@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.BL.IRepository;
@@ -22,42 +21,6 @@ namespace WebApplication1.Controllers
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
         }
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetHotels()
-        {
-            try
-            {
-                var hotels = await unitOfWork.Hotels.GetAllAsync();
-                var results = mapper.Map<IList<HotelDTO>>(hotels);
-                return Ok(results);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"Something Went Wrong in the {nameof(GetHotels)}");
-                return StatusCode(500, "Internal Server Erorr Please Try Again Later. ");
-            }
-
-        }
-
-        [HttpGet("{id:int}", Name = "GetHotel")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetHotel(int id)
-        {
-            try
-            {
-                var hotel = await unitOfWork.Hotels.GetAsync(q => q.Id == id, new List<string> { "Country" });
-                var result = mapper.Map<HotelDTO>(hotel);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"Something Went Wrong in the {nameof(GetHotel)}");
-                return StatusCode(500, "Internal Server Erorr Please Try Again Later. ");
-            }
-        }
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -70,18 +33,27 @@ namespace WebApplication1.Controllers
                 logger.LogError($"Invaild post attempt for {nameof(CreateHotel)}");
                 return BadRequest(ModelState);
             }
-            try
-            {
-                var hotel = mapper.Map<Hotel>(hotelDTO);
-                await unitOfWork.Hotels.AddAsync(hotel);
-                await unitOfWork.Save();
-                return CreatedAtRoute("GetHotel", new { id = hotel.Id }, hotel);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"Something Went Wrong in the {nameof(CreateHotel)}");
-                return StatusCode(500, "Internal Server Erorr Please Try Again Later. ");
-            }
+
+            var hotel = mapper.Map<Hotel>(hotelDTO);
+            await unitOfWork.Hotels.AddAsync(hotel);
+            await unitOfWork.Save();
+            return CreatedAtRoute("GetHotel", new { id = hotel.Id }, hotel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetHotels()
+        {
+            var hotels = await unitOfWork.Hotels.GetAllAsync();
+            var results = mapper.Map<IList<HotelDTO>>(hotels);
+            return Ok(results);
+        }
+
+        [HttpGet("{id:int}", Name = "GetHotel")]
+        public async Task<IActionResult> GetHotel(int id)
+        {
+            var hotel = await unitOfWork.Hotels.GetAsync(q => q.Id == id, new List<string> { "Co" });
+            var result = mapper.Map<HotelDTO>(hotel);
+            return Ok(result);
         }
 
         [HttpPut("{id:int}")]
@@ -94,24 +66,17 @@ namespace WebApplication1.Controllers
             {
                 return BadRequest(ModelState);
             }
-            try
+
+            var hotel = await unitOfWork.Hotels.GetAsync(q => q.Id == id);
+            if (hotel == null)
             {
-                var hotel = await unitOfWork.Hotels.GetAsync(q => q.Id == id);
-                if (hotel == null)
-                {
-                    logger.LogError($"Invaild UPDATE attempt for {nameof(UpdateHotel)}");
-                    return BadRequest("Submitted data is invaild");
-                }
-                mapper.Map(hotelDTO, hotel);
-                unitOfWork.Hotels.UpdateAsync(hotel);
-                await unitOfWork.Save();
-                return NoContent();
+                logger.LogError($"Invaild UPDATE attempt for {nameof(UpdateHotel)}");
+                return BadRequest("Submitted data is invaild");
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"Something Went Wrong in the {nameof(UpdateHotel)}");
-                return StatusCode(500, "Internal Server Erorr Please Try Again Later. ");
-            }
+            mapper.Map(hotelDTO, hotel); ;
+            unitOfWork.Hotels.UpdateAsync(hotel);
+            await unitOfWork.Save();
+            return NoContent();
         }
 
         [HttpDelete("{id:int}")]
@@ -122,28 +87,18 @@ namespace WebApplication1.Controllers
         {
             if (id < 1)
             {
-                logger.LogError($"Invalid DELETE attempt on {nameof(DeleteHotel)}");
-                return BadRequest();
+                return BadRequest(ModelState);
             }
-            try
-            {
-                var hotel = await unitOfWork.Hotels.GetAsync(q => q.Id == id);
-                if (hotel == null)
-                {
-                    logger.LogError($"Invalid DELETE attempt on {nameof(DeleteHotel)}");
-                    return BadRequest("Submitted is invaild");
-                }
-                await unitOfWork.Hotels.DeleteAsync(id);
-                await unitOfWork.Save();
-                return NoContent();
 
-            }
-            catch (Exception ex)
+            var hotel = await unitOfWork.Hotels.GetAsync(q => q.Id == id);
+            if (hotel == null)
             {
-                logger.LogError(ex, $"Something Went Wrong in {nameof(DeleteHotel)}");
-                return StatusCode(500, "Internal Server Erorr Please Try Again Later. ");
+                logger.LogError($"Invaild Delete attempt for {nameof(DeleteHotel)}");
+                return BadRequest("Submitted data is invaild");
             }
+            await unitOfWork.Hotels.DeleteAsync(id);
+            await unitOfWork.Save();
+            return NoContent();
         }
     }
-
 }

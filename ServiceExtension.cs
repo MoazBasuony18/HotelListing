@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using System.Text;
 using WebApplication1.Data;
+using WebApplication1.Models;
 
 namespace WebApplication1
 {
@@ -41,5 +44,25 @@ namespace WebApplication1
                     };
                 });
         }
+        public static void ConfigureExceptionHandler(this IApplicationBuilder app) {
+            app.UseExceptionHandler(error => {
+            error.Run(async context =>{
+                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                context.Response.ContentType="application/json";
+                var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
+                if(contextFeature != null)
+                {
+                    Log.Error($"Something went wrong in {contextFeature.Error}");
+                    await context.Response.WriteAsync(new Error
+                    {
+                        StatusCode = context.Response.StatusCode,
+                        Message = "Internal Server Error Please try again later."
+                    }.ToString());
+                }
+            });
+            });
+        
+        }
+    
     }
 }

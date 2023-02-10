@@ -17,8 +17,8 @@ namespace WebApplication1.Controllers
         private readonly UserManager<ApiUser> userManager;
         private readonly IAuthManager authManager;
 
-        public AccountController(ILogger<AccountController> logger,IMapper mapper,
-            UserManager<ApiUser> userManager,IAuthManager authManager)
+        public AccountController(ILogger<AccountController> logger, IMapper mapper,
+            UserManager<ApiUser> userManager, IAuthManager authManager)
         {
             this.logger = logger;
             this.mapper = mapper;
@@ -38,9 +38,9 @@ namespace WebApplication1.Controllers
             }
             try
             {
-                var user=mapper.Map<ApiUser>(userDTO);
+                var user = mapper.Map<ApiUser>(userDTO);
                 user.UserName = userDTO.Email;
-                var result = await userManager.CreateAsync(user,userDTO.Password);
+                var result = await userManager.CreateAsync(user, userDTO.Password);
                 if (!result.Succeeded)
                 {
                     foreach (var error in result.Errors)
