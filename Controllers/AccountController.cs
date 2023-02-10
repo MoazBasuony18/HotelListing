@@ -18,7 +18,7 @@ namespace WebApplication1.Controllers
         private readonly IAuthManager authManager;
 
         public AccountController(ILogger<AccountController> logger, IMapper mapper,
-            UserManager<ApiUser> userManager, IAuthManager authManager)
+            UserManager<ApiUser> userManager,IAuthManager authManager)
         {
             this.logger = logger;
             this.mapper = mapper;
