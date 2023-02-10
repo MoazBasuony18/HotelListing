@@ -48,11 +48,11 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCountries()
+        public async Task<IActionResult> GetCountries([FromQuery] RequestPramas requestPramas)
         {
             try
             {
-                var countries = await unitOfWork.Countries.GetAllAsync();
+                var countries = await unitOfWork.Countries.GetAllAsync(requestPramas);
                 var results = mapper.Map<IList<CountryDTO>>(countries);
                 return Ok(results);
             }

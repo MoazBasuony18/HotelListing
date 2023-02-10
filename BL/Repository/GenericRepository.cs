@@ -2,6 +2,8 @@
 using System.Linq.Expressions;
 using WebApplication1.BL.IRepository;
 using WebApplication1.Data;
+using WebApplication1.Models;
+using X.PagedList;
 
 namespace WebApplication1.BL.Repository
 {
@@ -55,6 +57,20 @@ namespace WebApplication1.BL.Repository
                 query = orderBy(query);
             }
             return await query.AsNoTracking().ToListAsync();
+        }
+
+        public async Task<IPagedList<TEntity>> GetAllAsync(RequestPramas requestPramas,List<string> includes = null)
+        {
+            IQueryable<TEntity> query = db;
+            
+            if (includes != null)
+            {
+                foreach (var includePropery in includes)
+                {
+                    query = query.Include(includePropery);
+                }
+            }
+            return await query.AsNoTracking().ToPagedListAsync(requestPramas.PageNumber,requestPramas.PageSize);
         }
 
         public async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> expression = null, List<string> includes = null)

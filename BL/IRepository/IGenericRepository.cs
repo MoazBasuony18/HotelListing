@@ -1,4 +1,6 @@
 ﻿using System.Linq.Expressions;
+using WebApplication1.Models;
+using X.PagedList;
 
 namespace WebApplication1.BL.IRepository
 {
@@ -8,6 +10,11 @@ namespace WebApplication1.BL.IRepository
             Expression<Func<TEntity,bool>>expression=null,
             Func<IQueryable<TEntity>,IOrderedQueryable<TEntity>>orderBy=null,
             List<string>includes=null);
+        Task<IPagedList<TEntity>> GetAllAsync(
+            RequestPramas requestPramas,
+            List<string> includes = null
+            );
+
         Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> expression = null,List<string> includes = null);
         Task AddAsync(TEntity entity);
         Task AddRangeAsync(IEnumerable<TEntity> entities);
